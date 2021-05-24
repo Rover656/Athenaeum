@@ -1,13 +1,7 @@
-# Automatically build the project and run any configured tests for every push
-# and submitted pull request. This can help catch issues that only occur on
-# certain platforms or Java versions, and provides a first line of defence
-# against bad commits.
-
 name: Publish release to Maven
 on:
-  [push]
-#  release:
-#    types: [created]
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -18,7 +12,7 @@ jobs:
       - name: validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Setup jdk 16
+      - name: Setup JDK 16
         uses: actions/setup-java@v1
         with:
           java-version: 16
@@ -26,8 +20,10 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: build
+      - name: Build
         run: ./gradlew build
+        env:
+          RELEASE: true
 
       - name: Publish to Maven
         run: ./gradlew publish
