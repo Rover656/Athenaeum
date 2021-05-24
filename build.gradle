@@ -1,0 +1,127 @@
+plugins {
+	id 'fabric-loom' version '0.8-SNAPSHOT' apply false
+	id 'maven-publish'
+}
+
+subprojects {
+	apply plugin: 'maven-publish'
+	apply plugin: 'fabric-loom'
+
+	def runNumber = System.getenv("GITHUB_RUN_NUMBER") ?: "9999"
+	archivesBaseName = project.mod_name
+	group = rootProject.mod_group
+
+	version = rootProject.mod_version + "+" + project.minecraft_version
+
+	java {
+		sourceCompatibility = JavaVersion.VERSION_16
+		targetCompatibility = JavaVersion.VERSION_16
+	}
+
+	repositories {
+		mavenCentral()
+	}
+
+	// TODO: Split some dependencies off so they're only used in the module they are needed in
+	dependencies {
+		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+		mappings "net.fabricmc:yarn:${rootProject.yarn_version}:v2"
+
+		modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+	}
+
+	afterEvaluate {
+		processResources {
+			filesMatching('fabric.mod.json') {
+				expand 'version': project.version
+			}
+			inputs.property "version", project.version
+		}
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+		options.release = 16
+	}
+
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		classifier("sources")
+		from sourceSets.main.allSource
+	}
+
+	archivesBaseName = project.name
+
+	task remapMavenJar(type: Copy, dependsOn: remapJar) {
+		afterEvaluate {
+			from("${project.buildDir}/libs/$archivesBaseName-${version}.jar")
+			into("${project.buildDir}/libs/")
+			rename { String fn -> "$archivesBaseName-${version}-maven.jar" }
+		}
+	}
+
+	configurations {
+		dev
+		remapped
+	}
+
+	jar {
+		classifier("dev")
+	}
+
+	remapJar {
+		input.set(jar.archiveFile)
+		classifier(null)
+	}
+
+	artifacts {
+		dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+		remapped file: file("${project.buildDir}/libs/$archivesBaseName-${version}.jar"), type: "jar", builtBy: remapJar
+	}
+
+	task copyBuiltToMain(type: Copy) {
+		from "${project.buildDir}/libs/"
+		into "${rootProject.buildDir}/libs/"
+		include "*.jar"
+	}
+	build.finalizedBy(copyBuiltToMain)
+
+	// configure the maven publication
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				// add all the jars that should be included when publishing to maven
+				artifact(remapJar) {
+					builtBy remapJar
+				}
+				artifact(sourcesJar) {
+					builtBy remapSourcesJar
+				}
+			}
+		}
+
+		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+		repositories {
+			if (System.getenv("MAVEN_USERNAME")) {
+				maven {
+					url "https://maven.nerdthings.dev/snapshots"
+					credentials {
+						username = System.getenv("MAVEN_USERNAME")
+						password = System.getenv("MAVEN_PASSWORD")
+					}
+				}
+			}
+		}
+	}
+
+}
+
+//dependencies {
+//	afterEvaluate {
+//		subprojects.each {
+////			api project(path: ":${it.name}", configuration: "dev")
+//			include project("${it.name}:")
+//		}
+//	}
+//}

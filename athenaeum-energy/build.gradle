@@ -1,0 +1,14 @@
+repositories {
+    maven {
+        name = "Technici4n"
+        url = "https://raw.githubusercontent.com/Technici4n/Technici4n-maven/master/"
+        content {
+            includeGroup "dev.technici4n"
+        }
+    }
+}
+
+dependencies {
+    // Compile with FTL only for energy support
+    modCompileOnly("dev.technici4n:FastTransferLib:${rootProject.ftl_version}")
+}
