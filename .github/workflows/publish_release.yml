@@ -28,12 +28,10 @@ jobs:
 
       - name: build
         run: ./gradlew build
-        env:
-          RELEASE: TRUE # Make it a release build.
 
       - name: Publish to Maven
         run: ./gradlew publish
         env:
-          RELEASE: TRUE
+          RELEASE: true
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}

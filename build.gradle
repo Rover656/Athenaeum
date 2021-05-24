@@ -3,10 +3,9 @@ plugins {
 	id 'maven-publish'
 }
 
-def runningRelease = System.getenv("RELEASE") == "TRUE"
+def runningRelease = System.getenv("RELEASE") == "true"
 
 logger.lifecycle("Building Athenaeum " + rootProject.mod_version + " for " + project.minecraft_version + ". Release? " + runningRelease)
-logger.error("Please see me: " + System.getenv("RELEASE"));
 
 subprojects {
 	apply plugin: 'maven-publish'
