@@ -3,7 +3,7 @@
 # certain platforms or Java versions, and provides a first line of defence
 # against bad commits.
 
-name: Publish to Maven
+name: Publish release to Maven
 on:
   [push]
 #  release:
@@ -13,20 +13,27 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - name: checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v2
       - name: validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: setup jdk ${{ matrix.java }}
+
+      - name: Setup jdk 16
         uses: actions/setup-java@v1
         with:
           java-version: 16
-      - name: make gradle wrapper executable
+
+      - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
+
       - name: build
         run: ./gradlew build
+        env:
+          RELEASE: TRUE # Make it a release build.
+
       - name: Publish to Maven
         run: ./gradlew publish
         env:
+          RELEASE: TRUE
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
