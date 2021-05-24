@@ -9,5 +9,5 @@ import net.minecraft.item.ItemStack;
  * @since 0.1.0
  */
 public interface ItemEnergyProvider {
-    EnergyHandler getEnergyHolder(ItemStack stack);
+    EnergyHandler getEnergyHandler(ItemStack itemStack);
 }

@@ -19,10 +19,8 @@ public interface BlockEnergyProvider {
      * @param world The current world.
      * @param pos The block position.
      * @param state The {@link BlockState}.
-     * @param blockEntity The {@link BlockEntity} if present.
-     * @param direction The direction of access.
      * @return
      */
-    EnergyHandler getEnergyHolder(World world, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity);
+    EnergyHandler getEnergyHandler(World world, BlockPos pos, BlockState state);
 
 }

@@ -2,118 +2,136 @@ package dev.nerdthings.athenaeum.energy;
 
 import dev.nerdthings.athenaeum.energy.block.BlockEnergyProvider;
 import dev.nerdthings.athenaeum.energy.blockentity.EnergyProvider;
+import dev.nerdthings.athenaeum.energy.compat.fasttransferlib.FTLCompat;
+import dev.nerdthings.athenaeum.energy.item.ItemEnergyProvider;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.WeakHashMap;
-
-// TODO: Maybe take a page out of TechReborn's book with its use of a lookup map instead of using BlockApiLookup?
-// https://github.com/TechReborn/Energy/blob/master/src/main/java/team/reborn/energy/Energy.java#L9
-// Don't know if that would be wise or not however...
 
 /**
  * Public registration and lookup API for the Quiltech Energy API.
  * @author Reece Mackie
  * @since 0.1.0
  */
+@SuppressWarnings("unused") // This is an API, dummy!
 public class EnergySystem {
 
     private static final BlockApiLookup<EnergyHandler, Void> BLOCK_LOOKUP = BlockApiLookup.get(new Identifier("athenaeum-energy", "sided_energy"), EnergyHandler.class, Void.class);
 
-    /**
-     *
-     * @param blockEntities
-     */
-    public static void registerSelf(BlockEntityType<?>... blockEntities) {
-        BLOCK_LOOKUP.registerSelf(blockEntities);
-    }
+//    private static final ItemApiLookup<EnergyHandler, Void> ITEM_LOOKUP = ItemApiLookup.get(new Identifier("athenaeum-energy", "item_energy"), EnergyHandler.class, Void.class);
 
-    /**
-     *
-     * @param blockEntities
-     */
-    public static void registerForBlockEntities(BlockEntityType<?>... blockEntities) {
-        // Register in the block api lookup
-        BLOCK_LOOKUP.registerForBlockEntities((blockEntity, context) -> {
-            if (blockEntity instanceof EnergyProvider) {
-                return ((EnergyProvider) blockEntity).getEnergyHolder();
+    // TODO: Attach energy to entities...
+
+    static {
+        // Register default handlers
+        BLOCK_LOOKUP.registerFallback((world, pos, state, blockEntity, context) -> {
+            if (blockEntity != null) {
+                if (blockEntity instanceof EnergyProvider provider) {
+                    return provider.getEnergyHandler();
+                } else if (blockEntity instanceof EnergyHolder holder) {
+                    return holder;
+                }
+            } else if (state.getBlock() instanceof BlockEnergyProvider provider) {
+                return provider.getEnergyHandler(world, pos, state);
             }
             return null;
-        }, blockEntities);
+        });
+
+//        ITEM_LOOKUP.registerFallback((itemStack, context) -> {
+//            if (itemStack.getItem() instanceof ItemEnergyProvider provider) {
+//                return provider.getEnergyHolder(itemStack);
+//            }
+//            return null;
+//        });
+
+        // FTL Compat
+        if (FabricLoader.getInstance().isModLoaded("fasttransferlib")) {
+            FTLCompat.registerFallbacks();
+        }
+    }
+
+    // TODO: Custom energy handler registration.
+
+    /**
+     * Register a custom provider for a list of {@link BlockEntityType}'s.
+     * @param provider The custom provider.
+     * @param blockEntityTypes The block entity types to register for.
+     */
+    public static void registerForBlockEntities(BlockApiLookup.BlockEntityApiProvider<EnergyHandler, Void> provider, BlockEntityType<?>... blockEntityTypes) {
+        BLOCK_LOOKUP.registerForBlockEntities(provider, blockEntityTypes);
+
+        // FTL Compat
+        if (FabricLoader.getInstance().isModLoaded("fasttransferlib")) {
+            FTLCompat.registerForBlockEntities(provider, blockEntityTypes);
+        }
     }
 
     /**
-     *
-     * @param blocks
+     * Register a custom provider for a list of {@link Block}'s.
+     * @param provider The custom provider.
+     * @param blocks The block entity types to register for.
      */
-    public static void registerForBlocks(Block... blocks) {
-        // Register in the block API lookup
-        BLOCK_LOOKUP.registerForBlocks((world, pos, state, blockEntity, direction) -> {
-            if (state.getBlock() instanceof EnergyProvider) {
-                return ((BlockEnergyProvider) state.getBlock()).getEnergyHolder(world, pos, state, blockEntity);
-            }
-            return null;
-        }, blocks);
+    public static void registerForBlocks(BlockApiLookup.BlockApiProvider<EnergyHandler, Void> provider, Block... blocks) {
+        BLOCK_LOOKUP.registerForBlocks(provider, blocks);
+
+        // FTL Compat
+        if (FabricLoader.getInstance().isModLoaded("fasttransferlib")) {
+            FTLCompat.registerForBlocks(provider, blocks);
+        }
     }
 
+    // TODO: Is this caching correct?
     private static final WeakHashMap<World, Long2ObjectOpenHashMap<BlockApiCache<EnergyHandler, Void>>> BLOCK_ENERGY_HOLDER_CACHE = new WeakHashMap<>();
 
     /**
-     *
-     * @param serverWorld
-     * @param pos
-     * @return
+     * Get the {@link EnergyHandler} of a {@link Block}.
+     * @param serverWorld The world.
+     * @param pos The block position.
+     * @return The energy handler.
      */
-    public static EnergyHandler of(ServerWorld serverWorld, BlockPos pos) {
+    public static @Nullable EnergyHandler of(@NotNull ServerWorld serverWorld, BlockPos pos) {
         return of(serverWorld, pos, null);
     }
 
     /**
-     *
-     * @param serverWorld
-     * @param pos
-     * @param state
-     * @return
+     * Get the {@link EnergyHandler} of a {@link Block}.
+     * @param serverWorld The world.
+     * @param pos The block position.
+     * @param state The block state.
+     * @return The energy handler.
      */
-    public static EnergyHandler of(ServerWorld serverWorld, BlockPos pos, @Nullable BlockState state) {
+    public static @Nullable EnergyHandler of(@NotNull ServerWorld serverWorld, BlockPos pos, @Nullable BlockState state) {
         // Populate cache then find
         BLOCK_ENERGY_HOLDER_CACHE.computeIfAbsent(serverWorld, (world) -> new Long2ObjectOpenHashMap<>());
         return BLOCK_ENERGY_HOLDER_CACHE.get(serverWorld).computeIfAbsent(pos.asLong(), (cache) -> BlockApiCache.create(BLOCK_LOOKUP, serverWorld, pos)).find(state, null);
     }
 
     /**
-     * Find an quantity holder for the given {@link BlockPos} and {@link Direction}.
-     * @apiNote Use of {@link EnergySystem#of(ServerWorld, BlockPos)} is recommended for frequent use, as it utilises a cache.
-     * @param world
-     * @param pos
-     * @return
+     * Get the {@link EnergyHandler} of an {@link ItemStack}
+     * @param itemStack The item stack.
+     * @return The energy handler.
      */
-    public static EnergyHandler find(World world, BlockPos pos) {
-        return find(world, pos, null, null);
-    }
+    public static @Nullable EnergyHandler of(@NotNull ItemStack itemStack) {
+//        return ITEM_LOOKUP.find(itemStack, null);
 
-    /**
-     *
-     * @apiNote Use of {@link EnergySystem#of(ServerWorld, BlockPos)} is recommended for frequent use, as it utilises a cache.
-     * @param world
-     * @param pos
-     * @param state
-     * @param blockEntity
-     * @return
-     */
-    public static EnergyHandler find(World world, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity) {
-        return BLOCK_LOOKUP.find(world, pos, state, blockEntity, null);
+        // TEMP. This is bascially what the lookup does anyways. Might not even use it. Depends if it makes it into quilt or not.
+        if (itemStack.getItem() instanceof ItemEnergyProvider provider) {
+            return provider.getEnergyHandler(itemStack);
+        }
+        return null;
     }
 
 }
