@@ -5,6 +5,8 @@ plugins {
 
 def runningRelease = System.getenv("RELEASE") == "TRUE"
 
+logger.lifecycle("Building Athenaeum " + rootProject.mod_version + " for " + project.minecraft_version + ". Release? " + runningRelease)
+
 subprojects {
 	apply plugin: 'maven-publish'
 	apply plugin: 'fabric-loom'
