@@ -18,7 +18,7 @@ subprojects {
 
 	def postfix = System.getenv("VERSION_POSTFIX");
 	if (postfix) {
-		version = version + postfix
+		version = version + "-" + postfix
 	} else if (!runningRelease) {
 		version = version + "-SNAPSHOT"
 	}
