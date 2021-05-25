@@ -1,4 +1,4 @@
-package dev.nerdthings.athenaeum.energy.item;
+package dev.nerdthings.athenaeum.energy.provider;
 
 import dev.nerdthings.athenaeum.energy.EnergyHandler;
 import net.minecraft.item.ItemStack;

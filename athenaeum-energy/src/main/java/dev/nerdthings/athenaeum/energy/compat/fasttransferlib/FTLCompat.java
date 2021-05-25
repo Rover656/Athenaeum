@@ -3,9 +3,9 @@ package dev.nerdthings.athenaeum.energy.compat.fasttransferlib;
 import dev.nerdthings.athenaeum.energy.EnergyHandler;
 import dev.nerdthings.athenaeum.energy.EnergyHolder;
 import dev.nerdthings.athenaeum.energy.EnergySide;
-import dev.nerdthings.athenaeum.energy.block.BlockEnergyProvider;
-import dev.nerdthings.athenaeum.energy.blockentity.EnergyProvider;
-import dev.nerdthings.athenaeum.energy.item.ItemEnergyProvider;
+import dev.nerdthings.athenaeum.energy.provider.BlockEnergyProvider;
+import dev.nerdthings.athenaeum.energy.provider.BlockEntityEnergyProvider;
+import dev.nerdthings.athenaeum.energy.provider.ItemEnergyProvider;
 import dev.technici4n.fasttransferlib.api.energy.EnergyApi;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.block.Block;
@@ -21,7 +21,7 @@ public class FTLCompat {
         EnergyApi.SIDED.registerFallback(((world, pos, state, blockEntity, direction) -> {
             EnergyHandler handler = null;
             if (blockEntity != null) {
-                if (blockEntity instanceof EnergyProvider provider) {
+                if (blockEntity instanceof BlockEntityEnergyProvider provider) {
                     handler = provider.getEnergyHandler();
                 } else if (blockEntity instanceof EnergyHolder holder) {
                     handler = holder;
