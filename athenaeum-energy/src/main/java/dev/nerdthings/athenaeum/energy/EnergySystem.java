@@ -1,9 +1,9 @@
 package dev.nerdthings.athenaeum.energy;
 
-import dev.nerdthings.athenaeum.energy.block.BlockEnergyProvider;
-import dev.nerdthings.athenaeum.energy.blockentity.EnergyProvider;
+import dev.nerdthings.athenaeum.energy.provider.BlockEnergyProvider;
+import dev.nerdthings.athenaeum.energy.provider.BlockEntityEnergyProvider;
 import dev.nerdthings.athenaeum.energy.compat.fasttransferlib.FTLCompat;
-import dev.nerdthings.athenaeum.energy.item.ItemEnergyProvider;
+import dev.nerdthings.athenaeum.energy.provider.ItemEnergyProvider;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
@@ -39,7 +39,7 @@ public class EnergySystem {
         // Register default handlers
         BLOCK_LOOKUP.registerFallback((world, pos, state, blockEntity, context) -> {
             if (blockEntity != null) {
-                if (blockEntity instanceof EnergyProvider provider) {
+                if (blockEntity instanceof BlockEntityEnergyProvider provider) {
                     return provider.getEnergyHandler();
                 } else if (blockEntity instanceof EnergyHolder holder) {
                     return holder;

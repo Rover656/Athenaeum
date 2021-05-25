@@ -1,4 +1,4 @@
-package dev.nerdthings.athenaeum.energy.blockentity;
+package dev.nerdthings.athenaeum.energy.provider;
 
 import dev.nerdthings.athenaeum.energy.EnergyHandler;
 import net.minecraft.block.entity.BlockEntity;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Reece Mackie
  * @since 0.1.0
  */
-public interface EnergyProvider {
+public interface BlockEntityEnergyProvider {
     @Nullable
     EnergyHandler getEnergyHandler();
 }

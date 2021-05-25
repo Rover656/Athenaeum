@@ -1,4 +1,4 @@
-package dev.nerdthings.athenaeum.energy.block;
+package dev.nerdthings.athenaeum.energy.provider;
 
 import dev.nerdthings.athenaeum.energy.EnergyHandler;
 import net.minecraft.block.BlockState;
