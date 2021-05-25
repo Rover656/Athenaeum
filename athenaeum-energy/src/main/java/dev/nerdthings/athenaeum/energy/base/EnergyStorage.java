@@ -18,7 +18,7 @@ public final class EnergyStorage implements EnergyHolder {
      * The quantity energyType this quantity storage uses.
      */
     @NotNull
-    private final EnergyType type;
+    private final EnergyType energyType;
 
     /**
      * The quantity of quantity stored.
@@ -45,12 +45,12 @@ public final class EnergyStorage implements EnergyHolder {
      */
     private final boolean supportEnergyConversion;
 
-    public EnergyStorage(@NotNull EnergyType type, int capacity, int maxInsertion, int maxExtraction) {
-        this(type, capacity, maxInsertion, maxExtraction, true);
+    public EnergyStorage(@NotNull EnergyType energyType, int capacity, int maxInsertion, int maxExtraction) {
+        this(energyType, capacity, maxInsertion, maxExtraction, true);
     }
 
-    public EnergyStorage(@NotNull EnergyType type, int capacity, int maxInsertion, int maxExtraction, boolean supportEnergyConversion) {
-        this.type = type;
+    public EnergyStorage(@NotNull EnergyType energyType, int capacity, int maxInsertion, int maxExtraction, boolean supportEnergyConversion) {
+        this.energyType = energyType;
         this.capacity = capacity;
         this.maxInsertion = maxInsertion;
         this.maxExtraction = maxExtraction;
@@ -83,54 +83,54 @@ public final class EnergyStorage implements EnergyHolder {
      * @return The {@link Energy} record.
      */
     public Energy energyOf(int amount) {
-        return type.of(amount);
+        return energyType.of(amount);
     }
 
     @Override
     public @NotNull Energy getStoredEnergy(EnergySide side) {
-        return type.of(stored);
+        return energyType.of(stored);
     }
 
     @Override
     public void setStoredEnergy(EnergySide side, @Nullable Energy energy) {
         if (energy == null) {
             stored = 0;
-        } else if (energy.isType(type)) {
-            stored = Math.min(energy.quantity(), capacity);
-        } else if (supportEnergyConversion && energy.canConvert(type)) {
-            stored = Math.min(energy.convert(type).quantity(), capacity);
+        } else if (energy.isType(energyType)) {
+            stored = Math.max(0, Math.min(energy.quantity(), capacity));
+        } else if (supportEnergyConversion && energy.canConvert(energyType)) {
+            setStoredEnergy(side, energy.convert(energyType));
         }
         throw new InvalidParameterException("Energy energyType is incompatible!");
     }
 
     @Override
     public @NotNull Energy getEnergyCapacity(EnergySide side) {
-        return type.of(capacity);
+        return energyType.of(capacity);
     }
 
     @Override
     public boolean consumeEnergy(@NotNull Energy energy, boolean simulate) {
-        if (energy.isType(type)) {
+        if (energy.isType(energyType)) {
             if (stored >= energy.quantity()) {
                 incrementEnergy(-energy.quantity(), simulate);
                 return true;
             }
-        } else if (supportEnergyConversion && energy.canConvert(type)) {
-            return consumeEnergy(energy.convert(type), simulate);
+        } else if (supportEnergyConversion && energy.canConvert(energyType)) {
+            return consumeEnergy(energy.convert(energyType), simulate);
         }
         return false;
     }
 
     @Override
     public @NotNull Energy insertEnergy(EnergySide side, @NotNull Energy energy, boolean simulate) {
-        if (energy.isType(type)) {
+        if (energy.isType(energyType)) {
             int inserted = Math.min(Math.min(energy.quantity(), maxInsertion), capacity - stored);
             incrementEnergy(inserted, simulate);
-            return type.of(energy.quantity() - inserted);
-        } else if (supportEnergyConversion && energy.canConvert(type)) {
+            return energyType.of(energy.quantity() - inserted);
+        } else if (supportEnergyConversion && energy.canConvert(energyType)) {
             // If the energy cannot be converted back down, this returns 0. This is not a problem as it just means energy losses will be had. This is a mod developers' issue.
             // We theoretically could check if it can be converted both ways, but that breaks duplex compat if one developer is silly.
-            return insertEnergy(side, energy.convert(type), simulate).convert(energy.energyType());
+            return insertEnergy(side, energy.convert(energyType), simulate).convert(energy.energyType());
         }
 
         // We didn't take the energy; so give it back.
@@ -139,23 +139,23 @@ public final class EnergyStorage implements EnergyHolder {
 
     @Override
     public @NotNull Energy extractEnergy(EnergySide side, @NotNull Energy maxAmount, boolean simulate) {
-        if (maxAmount.isType(type)) {
+        if (maxAmount.isType(energyType)) {
             int extracted = Math.min(Math.min(maxAmount.quantity(), maxExtraction), stored);
             incrementEnergy(-extracted, simulate);
-            return type.of(extracted);
-        } else if (supportEnergyConversion && maxAmount.canConvert(type)) {
+            return energyType.of(extracted);
+        } else if (supportEnergyConversion && maxAmount.canConvert(energyType)) {
             // Same issue as above.
-            return extractEnergy(side, maxAmount.convert(type), simulate).convert(maxAmount.energyType());
+            return extractEnergy(side, maxAmount.convert(energyType), simulate).convert(maxAmount.energyType());
         }
 
         // We took none of it.
-        return type.zero();
+        return energyType.zero();
     }
 
     @Override
     public boolean canInsert(EnergySide side, @NotNull EnergyType type) {
-        if (type != this.type) {
-            if (!supportEnergyConversion || !EnergyConverter.canConvert(type, this.type)) {
+        if (type != this.energyType) {
+            if (!supportEnergyConversion || !EnergyConverter.canConvert(type, this.energyType)) {
                 return false;
             }
         }
@@ -164,8 +164,8 @@ public final class EnergyStorage implements EnergyHolder {
 
     @Override
     public boolean canExtract(EnergySide side, @NotNull EnergyType type) {
-        if (type != this.type) {
-            if (!supportEnergyConversion || !EnergyConverter.canConvert(type, this.type)) {
+        if (type != this.energyType) {
+            if (!supportEnergyConversion || !EnergyConverter.canConvert(type, this.energyType)) {
                 return false;
             }
         }
@@ -174,7 +174,7 @@ public final class EnergyStorage implements EnergyHolder {
 
     private void incrementEnergy(int increment, boolean simulate) {
         if (!simulate) {
-            stored = Math.min(stored + increment, capacity);
+            stored = Math.max(0, Math.min(stored + increment, capacity));
         }
     }
 }
