@@ -14,10 +14,15 @@ subprojects {
 	archivesBaseName = project.mod_name
 	group = rootProject.mod_group
 
-	if (runningRelease) {
-		version = rootProject.mod_version + "+" + project.minecraft_version
-	} else {
-		version = rootProject.mod_version + "+" + project.minecraft_version + "-SNAPSHOT"
+	version = rootProject.mod_version + "+" + project.minecraft_version
+
+	def postfix = System.getenv("VERSION_POSTFIX");
+	if (postfix) {
+		version = version + postfix
+	}
+
+	if (!runningRelease) {
+		version = version + "-SNAPSHOT"
 	}
 
 	java {

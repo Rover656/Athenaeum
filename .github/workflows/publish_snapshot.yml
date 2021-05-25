@@ -27,8 +27,18 @@ jobs:
       - name: Build
         run: ./gradlew build
 
-      - name: Publish to Maven
+      - name: Publish to Maven (master)
+        if: ${{ GITHUB_REF##*/ == 'master' }}
         run: ./gradlew publish
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+      - name: Publish to Maven (other-branch)
+        if: ${{ GITHUB_REF##*/ != 'master' }}
+        run: ./gradlew publish
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          RELEASE: true # mark as release to drop -SNAPSHOT
+          VERSION_POSTFIX: ${{ GITHUB_REF##*/ }}
