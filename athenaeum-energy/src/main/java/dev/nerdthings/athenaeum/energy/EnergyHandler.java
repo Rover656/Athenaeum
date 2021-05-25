@@ -1,14 +1,23 @@
 package dev.nerdthings.athenaeum.energy;
 
+import dev.nerdthings.athenaeum.energy.exceptions.SideRequiredException;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A handler of Energy input and output.
  * Not necessarily an object that *stores* energy, but it handles it in some way.
- *
- * @implNote When implementing a handler, if sided access is required, you should probably throw when {@link EnergySide#NONE} is passed.
  */
 public interface EnergyHandler {
+
+    /**
+     * Determine whether or not the handler is sided.
+     * If this is a sided handler, then accessing the handler from {@link EnergySide#NONE} is perfect valid.
+     * Otherwise you must provide a valid side.
+     * @return Whether the handler is sided.
+     */
+    default boolean isSided() {
+        return false;
+    }
 
     /**
      * Attempt to consume quantity from the handler.
@@ -25,6 +34,8 @@ public interface EnergyHandler {
      * @return The quantity of quantity left after insertion.
      */
     default @NotNull Energy insertEnergy(@NotNull Energy energy, boolean simulate) {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return insertEnergy(EnergySide.NONE, energy, simulate);
     }
 
@@ -44,6 +55,8 @@ public interface EnergyHandler {
      * @return The quantity of quantity successfully extracted.
      */
     default @NotNull Energy extractEnergy(@NotNull Energy maxAmount, boolean simulate) {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return extractEnergy(EnergySide.NONE, maxAmount, simulate);
     }
 
@@ -61,6 +74,8 @@ public interface EnergyHandler {
      * @param type The quantity energyType to be inserted.
      */
     default boolean canInsert(@NotNull EnergyType type) {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return canInsert(EnergySide.NONE, type);
     }
 
@@ -76,6 +91,8 @@ public interface EnergyHandler {
      * @param type The quantity energyType to be extracted.
      */
     default boolean canExtract(@NotNull EnergyType type) {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return canExtract(EnergySide.NONE, type);
     }
 

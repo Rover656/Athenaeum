@@ -1,12 +1,11 @@
 package dev.nerdthings.athenaeum.energy;
 
+import dev.nerdthings.athenaeum.energy.exceptions.SideRequiredException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * An object that *stores* energy.
- *
- * @implNote When implementing a holder, if sided access is required, you should probably throw when {@link EnergySide#NONE} is passed.
  */
 public interface EnergyHolder extends EnergyHandler {
     /**
@@ -14,6 +13,8 @@ public interface EnergyHolder extends EnergyHandler {
      * @return The energy stored.
      */
     default @NotNull Energy getStoredEnergy() {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return getStoredEnergy(EnergySide.NONE);
     }
 
@@ -29,6 +30,8 @@ public interface EnergyHolder extends EnergyHandler {
      * @param energy The energy to be stored.
      */
     default void setStoredEnergy(@Nullable Energy energy) {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         setStoredEnergy(EnergySide.NONE, energy);
     }
 
@@ -44,6 +47,8 @@ public interface EnergyHolder extends EnergyHandler {
      * @return The capacity of the holder, including its preferred energyType.
      */
     default @NotNull Energy getEnergyCapacity() {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return getEnergyCapacity(EnergySide.NONE);
     }
 
@@ -59,6 +64,8 @@ public interface EnergyHolder extends EnergyHandler {
      * @return Whether the holder is full.
      */
     default boolean isFull() {
+        if (isSided())
+            throw new SideRequiredException("Sideless access to this handler is not permitted!");
         return isFull(EnergySide.NONE);
     }
 
