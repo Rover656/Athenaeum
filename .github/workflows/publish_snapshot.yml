@@ -28,7 +28,7 @@ jobs:
         run: ./gradlew build
 
       - name: Publish to Maven (master)
-        if: ${{ GITHUB_REF == 'refs/head/master' }}
+        if: ${{ env.GITHUB_REF == 'refs/head/master' }}
         run: ./gradlew publish
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
