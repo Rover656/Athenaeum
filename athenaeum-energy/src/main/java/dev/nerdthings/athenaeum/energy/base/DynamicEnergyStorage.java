@@ -1,6 +1,7 @@
 package dev.nerdthings.athenaeum.energy.base;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.exceptions.IncompatibleEnergyException;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,7 +133,7 @@ public final class DynamicEnergyStorage implements EnergyHolder {
         } else if (energy.canConvert(referenceType)) {
             stored = energy;
         } else {
-            throw new InvalidParameterException("Energy energyType must be convertible to the reference energyType!");
+            throw new IncompatibleEnergyException("Energy energyType must be convertible to the reference energyType!");
         }
     }
 

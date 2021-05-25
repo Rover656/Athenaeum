@@ -1,6 +1,7 @@
 package dev.nerdthings.athenaeum.energy.base;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.exceptions.IncompatibleEnergyException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
@@ -106,6 +107,7 @@ public class ItemEnergyStorage implements EnergyHolder {
         } else if (energy.canConvert(energyType)) {
             setStoredEnergy(side, energy.convert(energyType));
         }
+        throw new IncompatibleEnergyException("Energy energyType is incompatible!");
     }
 
     @Override

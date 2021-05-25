@@ -1,6 +1,7 @@
 package dev.nerdthings.athenaeum.energy.base;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.exceptions.IncompatibleEnergyException;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -100,7 +101,7 @@ public final class EnergyStorage implements EnergyHolder {
         } else if (supportEnergyConversion && energy.canConvert(type)) {
             stored = Math.min(energy.convert(type).quantity(), capacity);
         }
-        throw new InvalidParameterException("Energy energyType is incompatible!");
+        throw new IncompatibleEnergyException("Energy energyType is incompatible!");
     }
 
     @Override

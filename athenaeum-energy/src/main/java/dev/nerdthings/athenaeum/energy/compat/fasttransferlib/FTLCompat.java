@@ -21,12 +21,12 @@ public class FTLCompat {
         EnergyApi.SIDED.registerFallback(((world, pos, state, blockEntity, direction) -> {
             EnergyHandler handler = null;
             if (blockEntity != null) {
-                if (blockEntity instanceof BlockEntityEnergyProvider provider) {
+                if (blockEntity instanceof BlockEntityEnergyProvider<?> provider) {
                     handler = provider.getEnergyHandler();
                 } else if (blockEntity instanceof EnergyHolder holder) {
                     handler = holder;
                 }
-            } else if (state.getBlock() instanceof BlockEnergyProvider provider) {
+            } else if (state.getBlock() instanceof BlockEnergyProvider<?> provider) {
                 handler = provider.getEnergyHandler(world, pos, state);
             }
 
@@ -36,7 +36,7 @@ public class FTLCompat {
         }));
 
         EnergyApi.ITEM.registerFallback((itemStack, context) -> {
-            if (itemStack.getItem() instanceof ItemEnergyProvider provider) {
+            if (itemStack.getItem() instanceof ItemEnergyProvider<?> provider) {
                 EnergyHandler handler = provider.getEnergyHandler(itemStack.toStack());
                 if (handler != null)
                     return new HandlerToEnergyIo(handler, EnergySide.NONE);

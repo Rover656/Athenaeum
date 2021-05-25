@@ -39,19 +39,19 @@ public class EnergySystem {
         // Register default handlers
         BLOCK_LOOKUP.registerFallback((world, pos, state, blockEntity, context) -> {
             if (blockEntity != null) {
-                if (blockEntity instanceof BlockEntityEnergyProvider provider) {
+                if (blockEntity instanceof BlockEntityEnergyProvider<?> provider) {
                     return provider.getEnergyHandler();
                 } else if (blockEntity instanceof EnergyHolder holder) {
                     return holder;
                 }
-            } else if (state.getBlock() instanceof BlockEnergyProvider provider) {
+            } else if (state.getBlock() instanceof BlockEnergyProvider<?> provider) {
                 return provider.getEnergyHandler(world, pos, state);
             }
             return null;
         });
 
 //        ITEM_LOOKUP.registerFallback((itemStack, context) -> {
-//            if (itemStack.getItem() instanceof ItemEnergyProvider provider) {
+//            if (itemStack.getItem() instanceof ItemEnergyProvider<?> provider) {
 //                return provider.getEnergyHolder(itemStack);
 //            }
 //            return null;
@@ -128,7 +128,7 @@ public class EnergySystem {
 //        return ITEM_LOOKUP.find(itemStack, null);
 
         // TEMP. This is bascially what the lookup does anyways. Might not even use it. Depends if it makes it into quilt or not.
-        if (itemStack.getItem() instanceof ItemEnergyProvider provider) {
+        if (itemStack.getItem() instanceof ItemEnergyProvider<?> provider) {
             return provider.getEnergyHandler(itemStack);
         }
         return null;
