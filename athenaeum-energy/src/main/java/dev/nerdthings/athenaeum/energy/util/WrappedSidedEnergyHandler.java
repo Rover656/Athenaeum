@@ -1,8 +1,8 @@
 package dev.nerdthings.athenaeum.energy.util;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.security.InvalidParameterException;
 
@@ -14,12 +14,12 @@ import java.security.InvalidParameterException;
  * @deprecated Should be reimplemented with a sided wrapper, supporting the option of having multiple allowed sides etc. Must be thought about. For now still use this.
  */
 @Deprecated
-public class WrappedEnergyHandler implements EnergyHandler {
+public class WrappedSidedEnergyHandler implements SidedEnergyHandler {
 
     /**
      * The wrapped holder.
      */
-    private final EnergyHandler handler;
+    private final SidedEnergyHandler handler;
 
     /**
      * Whether extraction from the holder is allowed.
@@ -31,7 +31,7 @@ public class WrappedEnergyHandler implements EnergyHandler {
      */
     private final boolean allowInsert;
 
-    public WrappedEnergyHandler(EnergyHandler handler, boolean allowExtract, boolean allowInsert) {
+    public WrappedSidedEnergyHandler(SidedEnergyHandler handler, boolean allowExtract, boolean allowInsert) {
         // They shouldn't be the same, its a waste of time using this otherwise
         if (allowInsert == allowExtract) {
             // TODO: Logger instead maybe?

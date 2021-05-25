@@ -1,12 +1,14 @@
-package dev.nerdthings.athenaeum.energy;
+package dev.nerdthings.athenaeum.energy.sided;
 
+import dev.nerdthings.athenaeum.energy.Energy;
+import dev.nerdthings.athenaeum.energy.EnergySide;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * An object that *stores* energy.
  */
-public interface EnergyHolder extends EnergyHandler {
+public interface SidedEnergyHolder extends SidedEnergyHandler {
     /**
      * Get the stored energy.
      * @param side The side to access from.

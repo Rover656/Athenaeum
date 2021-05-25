@@ -1,14 +1,12 @@
-package dev.nerdthings.athenaeum.energy.block;
+package dev.nerdthings.athenaeum.energy.sided.block;
 
-import dev.nerdthings.athenaeum.energy.EnergyHandler;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHandler;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Implement on a block that will provide an {@link EnergyHandler}.
+ * Implement on a block that will provide an {@link SidedEnergyHandler}.
  * @author Reece Mackie
  * @since 0.1.0
  */
@@ -21,6 +19,6 @@ public interface BlockEnergyProvider {
      * @param state The {@link BlockState}.
      * @return
      */
-    EnergyHandler getEnergyHandler(World world, BlockPos pos, BlockState state);
+    SidedEnergyHandler getEnergyHandler(World world, BlockPos pos, BlockState state);
 
 }

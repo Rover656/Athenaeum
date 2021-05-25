@@ -1,6 +1,6 @@
-package dev.nerdthings.athenaeum.energy.item;
+package dev.nerdthings.athenaeum.energy.generic.item;
 
-import dev.nerdthings.athenaeum.energy.EnergyHandler;
+import dev.nerdthings.athenaeum.energy.generic.EnergyHandler;
 import net.minecraft.item.ItemStack;
 
 /**

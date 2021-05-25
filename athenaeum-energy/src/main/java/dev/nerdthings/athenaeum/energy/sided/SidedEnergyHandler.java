@@ -1,12 +1,15 @@
-package dev.nerdthings.athenaeum.energy;
+package dev.nerdthings.athenaeum.energy.sided;
 
+import dev.nerdthings.athenaeum.energy.Energy;
+import dev.nerdthings.athenaeum.energy.EnergySide;
+import dev.nerdthings.athenaeum.energy.EnergyType;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A handler of Energy input and output.
  * Not necessarily an object that *stores* energy, but it handles it in some way.
  */
-public interface EnergyHandler {
+public interface SidedEnergyHandler {
 
     /**
      * Attempt to consume quantity from the handler.

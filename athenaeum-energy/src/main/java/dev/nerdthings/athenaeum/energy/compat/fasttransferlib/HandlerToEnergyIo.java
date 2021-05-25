@@ -1,29 +1,31 @@
 package dev.nerdthings.athenaeum.energy.compat.fasttransferlib;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHandler;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHolder;
 import dev.technici4n.fasttransferlib.api.Simulation;
 import dev.technici4n.fasttransferlib.api.energy.EnergyIo;
 
 public class HandlerToEnergyIo implements EnergyIo {
-    private final EnergyHandler handler;
+    private final SidedEnergyHandler handler;
     private final EnergySide side;
 
-    public HandlerToEnergyIo(EnergyHandler handler, EnergySide side) {
+    public HandlerToEnergyIo(SidedEnergyHandler handler, EnergySide side) {
         this.handler = handler;
         this.side = side;
     }
 
     @Override
     public double getEnergy() {
-        if (handler instanceof EnergyHolder)
-            return ((EnergyHolder) handler).getStoredEnergy(side).convert(EnergyTypes.FTL).quantity();
+        if (handler instanceof SidedEnergyHolder)
+            return ((SidedEnergyHolder) handler).getStoredEnergy(side).convert(EnergyTypes.FTL).quantity();
         return 0;
     }
 
     @Override
     public double getEnergyCapacity() {
-        if (handler instanceof EnergyHolder)
-            return ((EnergyHolder) handler).getEnergyCapacity(side).convert(EnergyTypes.FTL).quantity();
+        if (handler instanceof SidedEnergyHolder)
+            return ((SidedEnergyHolder) handler).getEnergyCapacity(side).convert(EnergyTypes.FTL).quantity();
         return 0;
     }
 

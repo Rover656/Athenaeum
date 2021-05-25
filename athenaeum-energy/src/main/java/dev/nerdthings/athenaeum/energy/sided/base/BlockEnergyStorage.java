@@ -1,6 +1,7 @@
-package dev.nerdthings.athenaeum.energy.base;
+package dev.nerdthings.athenaeum.energy.sided.base;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHolder;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +13,7 @@ import java.security.InvalidParameterException;
  * @author Reece Mackie
  * @since 0.1.0
  */
-public final class EnergyStorage implements EnergyHolder {
+public final class BlockEnergyStorage implements SidedEnergyHolder {
 
     /**
      * The quantity energyType this quantity storage uses.
@@ -45,11 +46,11 @@ public final class EnergyStorage implements EnergyHolder {
      */
     private final boolean supportEnergyConversion;
 
-    public EnergyStorage(@NotNull EnergyType energyType, int capacity, int maxInsertion, int maxExtraction) {
+    public BlockEnergyStorage(@NotNull EnergyType energyType, int capacity, int maxInsertion, int maxExtraction) {
         this(energyType, capacity, maxInsertion, maxExtraction, true);
     }
 
-    public EnergyStorage(@NotNull EnergyType energyType, int capacity, int maxInsertion, int maxExtraction, boolean supportEnergyConversion) {
+    public BlockEnergyStorage(@NotNull EnergyType energyType, int capacity, int maxInsertion, int maxExtraction, boolean supportEnergyConversion) {
         this.energyType = energyType;
         this.capacity = capacity;
         this.maxInsertion = maxInsertion;

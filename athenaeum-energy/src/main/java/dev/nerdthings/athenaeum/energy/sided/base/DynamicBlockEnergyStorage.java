@@ -1,6 +1,7 @@
-package dev.nerdthings.athenaeum.energy.base;
+package dev.nerdthings.athenaeum.energy.sided.base;
 
 import dev.nerdthings.athenaeum.energy.*;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHolder;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +14,7 @@ import java.security.InvalidParameterException;
  *
  * Warning: this is a reference implementation and is by no means ready to be considered best practice!
  */
-public final class DynamicEnergyStorage implements EnergyHolder {
+public final class DynamicBlockEnergyStorage implements SidedEnergyHolder {
     /**
      * The energy stored.
      */
@@ -28,7 +29,7 @@ public final class DynamicEnergyStorage implements EnergyHolder {
     private final Energy maxInsertion;
     private final Energy maxExtraction;
 
-    public DynamicEnergyStorage(EnergyType referenceType, int capacity, int maxInsertion, int maxExtraction) {
+    public DynamicBlockEnergyStorage(EnergyType referenceType, int capacity, int maxInsertion, int maxExtraction) {
         this.referenceType = referenceType;
         this.capacity = referenceType.of(capacity);
         this.maxInsertion = referenceType.of(maxInsertion);

@@ -1,11 +1,12 @@
 package dev.nerdthings.athenaeum.energy.compat.fasttransferlib;
 
-import dev.nerdthings.athenaeum.energy.EnergyHandler;
-import dev.nerdthings.athenaeum.energy.EnergyHolder;
+import dev.nerdthings.athenaeum.energy.generic.EnergyHandler;
+import dev.nerdthings.athenaeum.energy.generic.item.ItemEnergyProvider;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHandler;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHolder;
 import dev.nerdthings.athenaeum.energy.EnergySide;
-import dev.nerdthings.athenaeum.energy.block.BlockEnergyProvider;
-import dev.nerdthings.athenaeum.energy.blockentity.EnergyProvider;
-import dev.nerdthings.athenaeum.energy.item.ItemEnergyProvider;
+import dev.nerdthings.athenaeum.energy.sided.block.BlockEnergyProvider;
+import dev.nerdthings.athenaeum.energy.sided.blockentity.EnergyProvider;
 import dev.technici4n.fasttransferlib.api.energy.EnergyApi;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.block.Block;
@@ -19,11 +20,11 @@ import net.minecraft.block.entity.BlockEntityType;
 public class FTLCompat {
     public static void registerFallbacks() {
         EnergyApi.SIDED.registerFallback(((world, pos, state, blockEntity, direction) -> {
-            EnergyHandler handler = null;
+            SidedEnergyHandler handler = null;
             if (blockEntity != null) {
                 if (blockEntity instanceof EnergyProvider provider) {
                     handler = provider.getEnergyHandler();
-                } else if (blockEntity instanceof EnergyHolder holder) {
+                } else if (blockEntity instanceof SidedEnergyHolder holder) {
                     handler = holder;
                 }
             } else if (state.getBlock() instanceof BlockEnergyProvider provider) {
@@ -38,17 +39,18 @@ public class FTLCompat {
         EnergyApi.ITEM.registerFallback((itemStack, context) -> {
             if (itemStack.getItem() instanceof ItemEnergyProvider provider) {
                 EnergyHandler handler = provider.getEnergyHandler(itemStack.toStack());
-                if (handler != null)
-                    return new HandlerToEnergyIo(handler, EnergySide.NONE);
+                // TODO
+//                if (handler != null)
+//                    return new HandlerToEnergyIo(handler, EnergySide.NONE);
             }
             return null;
         });
     }
 
-    public static void registerForBlockEntities(BlockApiLookup.BlockEntityApiProvider<EnergyHandler, Void> provider, BlockEntityType<?>... blockEntityTypes) {
+    public static void registerForBlockEntities(BlockApiLookup.BlockEntityApiProvider<SidedEnergyHandler, Void> provider, BlockEntityType<?>... blockEntityTypes) {
         EnergyApi.SIDED.registerForBlockEntities((blockEntity, direction) -> {
             if (blockEntity != null) {
-                EnergyHandler handler = provider.find(blockEntity, null);
+                SidedEnergyHandler handler = provider.find(blockEntity, null);
                 if (handler != null)
                     return new HandlerToEnergyIo(handler, EnergySide.fromDirection(direction));
             }
@@ -56,9 +58,9 @@ public class FTLCompat {
         }, blockEntityTypes);
     }
 
-    public static void registerForBlocks(BlockApiLookup.BlockApiProvider<EnergyHandler, Void> provider, Block... blocks) {
+    public static void registerForBlocks(BlockApiLookup.BlockApiProvider<SidedEnergyHandler, Void> provider, Block... blocks) {
         EnergyApi.SIDED.registerForBlocks((world, pos, state, blockEntity, direction) -> {
-            EnergyHandler handler = provider.find(world, pos, state, blockEntity, null);
+            SidedEnergyHandler handler = provider.find(world, pos, state, blockEntity, null);
             if (handler != null)
                 return new HandlerToEnergyIo(handler, EnergySide.fromDirection(direction));
             return null;

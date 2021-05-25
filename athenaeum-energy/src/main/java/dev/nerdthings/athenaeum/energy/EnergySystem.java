@@ -1,9 +1,12 @@
 package dev.nerdthings.athenaeum.energy;
 
-import dev.nerdthings.athenaeum.energy.block.BlockEnergyProvider;
-import dev.nerdthings.athenaeum.energy.blockentity.EnergyProvider;
+import dev.nerdthings.athenaeum.energy.generic.EnergyHandler;
+import dev.nerdthings.athenaeum.energy.generic.item.ItemEnergyProvider;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHandler;
+import dev.nerdthings.athenaeum.energy.sided.SidedEnergyHolder;
 import dev.nerdthings.athenaeum.energy.compat.fasttransferlib.FTLCompat;
-import dev.nerdthings.athenaeum.energy.item.ItemEnergyProvider;
+import dev.nerdthings.athenaeum.energy.sided.block.BlockEnergyProvider;
+import dev.nerdthings.athenaeum.energy.sided.blockentity.EnergyProvider;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
@@ -29,7 +32,7 @@ import java.util.WeakHashMap;
 @SuppressWarnings("unused") // This is an API, dummy!
 public class EnergySystem {
 
-    private static final BlockApiLookup<EnergyHandler, Void> BLOCK_LOOKUP = BlockApiLookup.get(new Identifier("athenaeum-energy", "sided_energy"), EnergyHandler.class, Void.class);
+    private static final BlockApiLookup<SidedEnergyHandler, Void> BLOCK_LOOKUP = BlockApiLookup.get(new Identifier("athenaeum-energy", "sided_energy"), SidedEnergyHandler.class, Void.class);
 
 //    private static final ItemApiLookup<EnergyHandler, Void> ITEM_LOOKUP = ItemApiLookup.get(new Identifier("athenaeum-energy", "item_energy"), EnergyHandler.class, Void.class);
 
@@ -41,7 +44,7 @@ public class EnergySystem {
             if (blockEntity != null) {
                 if (blockEntity instanceof EnergyProvider provider) {
                     return provider.getEnergyHandler();
-                } else if (blockEntity instanceof EnergyHolder holder) {
+                } else if (blockEntity instanceof SidedEnergyHolder holder) {
                     return holder;
                 }
             } else if (state.getBlock() instanceof BlockEnergyProvider provider) {
@@ -70,7 +73,7 @@ public class EnergySystem {
      * @param provider The custom provider.
      * @param blockEntityTypes The block entity types to register for.
      */
-    public static void registerForBlockEntities(BlockApiLookup.BlockEntityApiProvider<EnergyHandler, Void> provider, BlockEntityType<?>... blockEntityTypes) {
+    public static void registerForBlockEntities(BlockApiLookup.BlockEntityApiProvider<SidedEnergyHandler, Void> provider, BlockEntityType<?>... blockEntityTypes) {
         BLOCK_LOOKUP.registerForBlockEntities(provider, blockEntityTypes);
 
         // FTL Compat
@@ -84,7 +87,7 @@ public class EnergySystem {
      * @param provider The custom provider.
      * @param blocks The block entity types to register for.
      */
-    public static void registerForBlocks(BlockApiLookup.BlockApiProvider<EnergyHandler, Void> provider, Block... blocks) {
+    public static void registerForBlocks(BlockApiLookup.BlockApiProvider<SidedEnergyHandler, Void> provider, Block... blocks) {
         BLOCK_LOOKUP.registerForBlocks(provider, blocks);
 
         // FTL Compat
@@ -94,33 +97,33 @@ public class EnergySystem {
     }
 
     // TODO: Is this caching correct?
-    private static final WeakHashMap<World, Long2ObjectOpenHashMap<BlockApiCache<EnergyHandler, Void>>> BLOCK_ENERGY_HOLDER_CACHE = new WeakHashMap<>();
+    private static final WeakHashMap<World, Long2ObjectOpenHashMap<BlockApiCache<SidedEnergyHandler, Void>>> BLOCK_ENERGY_HOLDER_CACHE = new WeakHashMap<>();
 
     /**
-     * Get the {@link EnergyHandler} of a {@link Block}.
+     * Get the {@link SidedEnergyHandler} of a {@link Block}.
      * @param serverWorld The world.
      * @param pos The block position.
      * @return The energy handler.
      */
-    public static @Nullable EnergyHandler of(@NotNull ServerWorld serverWorld, BlockPos pos) {
+    public static @Nullable SidedEnergyHandler of(@NotNull ServerWorld serverWorld, BlockPos pos) {
         return of(serverWorld, pos, null);
     }
 
     /**
-     * Get the {@link EnergyHandler} of a {@link Block}.
+     * Get the {@link SidedEnergyHandler} of a {@link Block}.
      * @param serverWorld The world.
      * @param pos The block position.
      * @param state The block state.
      * @return The energy handler.
      */
-    public static @Nullable EnergyHandler of(@NotNull ServerWorld serverWorld, BlockPos pos, @Nullable BlockState state) {
+    public static @Nullable SidedEnergyHandler of(@NotNull ServerWorld serverWorld, BlockPos pos, @Nullable BlockState state) {
         // Populate cache then find
         BLOCK_ENERGY_HOLDER_CACHE.computeIfAbsent(serverWorld, (world) -> new Long2ObjectOpenHashMap<>());
         return BLOCK_ENERGY_HOLDER_CACHE.get(serverWorld).computeIfAbsent(pos.asLong(), (cache) -> BlockApiCache.create(BLOCK_LOOKUP, serverWorld, pos)).find(state, null);
     }
 
     /**
-     * Get the {@link EnergyHandler} of an {@link ItemStack}
+     * Get the {@link SidedEnergyHandler} of an {@link ItemStack}
      * @param itemStack The item stack.
      * @return The energy handler.
      */
